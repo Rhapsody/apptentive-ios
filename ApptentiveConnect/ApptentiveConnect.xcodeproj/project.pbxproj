@@ -6,6 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		FB5175D11BE40C5200BC87AA /* UniversalLib */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = FB5175D21BE40C5200BC87AA /* Build configuration list for PBXAggregateTarget "UniversalLib" */;
+			buildPhases = (
+				FB5175D51BE40C5700BC87AA /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = UniversalLib;
+			productName = UniversalLib;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		013C1A7B1B713D5C002434B8 /* ATMessageCenterErrorViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 013C1A791B713D5C002434B8 /* ATMessageCenterErrorViewController.h */; };
 		013C1A7C1B713D5C002434B8 /* ATMessageCenterErrorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 013C1A7A1B713D5C002434B8 /* ATMessageCenterErrorViewController.m */; };
@@ -1503,6 +1517,11 @@
 			attributes = {
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Apptentive, Inc.";
+				TargetAttributes = {
+					FB5175D11BE40C5200BC87AA = {
+						CreatedOnToolsVersion = 7.1;
+					};
+				};
 			};
 			buildConfigurationList = 496DC3791333D35600743F65 /* Build configuration list for PBXProject "ApptentiveConnect" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1538,6 +1557,7 @@
 				496DC37E1333D35600743F65 /* ApptentiveConnect */,
 				496DC38B1333D35600743F65 /* ApptentiveConnectTests */,
 				49D1118B13341A7C00603373 /* ApptentiveResources */,
+				FB5175D11BE40C5200BC87AA /* UniversalLib */,
 			);
 		};
 /* End PBXProject section */
@@ -1619,6 +1639,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "echo \"Configuration is: ${CONFIGURATION}\"\nif [ \"${CONFIGURATION}\" = 'Release' ]; then\n    echo \"b\"\n    if [ -e \"${PROJECT_DIR}/resources/localization/en.lproj/Localizable.strings\" ]; then\n        echo \"c\"\n        rm \"${PROJECT_DIR}/resources/localization/en.lproj/Localizable.strings\"\n    fi\n    find \"${PROJECT_DIR}/source/\" -name *.m -print0 | xargs -0 genstrings -s ATLocalizedString -o \"${PROJECT_DIR}/resources/localization/en.lproj\"\nfi\n";
+		};
+		FB5175D51BE40C5700BC87AA /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script runs the iphoneos build to make the arm lib, then the sim build to make the x86 lib, then copies the framework and combines the libs into a universal lib\n\n# define output folder environment variable\nUNIVERSAL_OUTPUTFOLDER=${BUILD_DIR}/${CONFIGURATION}-universal\n\n# Step 1. Build Device and Simulator versions\nxcodebuild -project ApptentiveConnect.xcodeproj -target ApptentiveConnect ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphoneos  BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\nxcodebuild -project ApptentiveConnect.xcodeproj -target ApptentiveConnect ONLY_ACTIVE_ARCH=NO -configuration ${CONFIGURATION} -sdk iphonesimulator BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\n# make sure the output directory exists\nrm -rf \"${UNIVERSAL_OUTPUTFOLDER}\"\nmkdir -p \"${UNIVERSAL_OUTPUTFOLDER}\"\n\n# Step 2. Create universal binary file using lipo\nlipo -create -output \"${UNIVERSAL_OUTPUTFOLDER}/lib${PROJECT_NAME}.a\" \"${BUILD_DIR}/${CONFIGURATION}-iphoneos/lib${PROJECT_NAME}.a\" \"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/lib${PROJECT_NAME}.a\"\n\n# Last touch. copy the header files. Just for convenience\ncp -R \"${SRCROOT}/source/ATConnect.h\" \"${UNIVERSAL_OUTPUTFOLDER}/\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2059,6 +2092,20 @@
 			};
 			name = Release;
 		};
+		FB5175D31BE40C5200BC87AA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		FB5175D41BE40C5200BC87AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2097,6 +2144,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		FB5175D21BE40C5200BC87AA /* Build configuration list for PBXAggregateTarget "UniversalLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FB5175D31BE40C5200BC87AA /* Debug */,
+				FB5175D41BE40C5200BC87AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 
